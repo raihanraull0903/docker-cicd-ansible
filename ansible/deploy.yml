@@ -1,4 +1,3 @@
----
 - name: Deploy Docker Application
   hosts: docker
   become: true
@@ -17,6 +16,7 @@
         name: cicd-web
         tag: latest
         source: build
+        force_source: true
         build:
           path: /opt/cicd-web/
         state: present
