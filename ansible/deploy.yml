@@ -1,0 +1,36 @@
+---
+- name: Deploy Docker Application
+  hosts: docker
+  become: true
+
+  tasks:
+
+    - name: Copy application files
+      copy:
+        src: "{{ playbook_dir }}/../"
+        dest: /opt/cicd-web/
+        owner: ubuntu
+        group: ubuntu
+
+    - name: Build Docker image
+      community.docker.docker_image:
+        name: cicd-web
+        tag: latest
+        source: build
+        build:
+          path: /opt/cicd-web/
+        state: present
+
+    - name: Stop old container
+      community.docker.docker_container:
+        name: cicd-web
+        state: absent
+
+    - name: Start new container
+      community.docker.docker_container:
+        name: cicd-web
+        image: cicd-web:latest
+        state: started
+        restart_policy: unless-stopped
+        published_ports:
+          - "8080:80"
