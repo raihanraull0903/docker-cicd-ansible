@@ -1,0 +1,39 @@
+name: Docker CI
+
+on:
+  push:
+    branches:
+      - main
+
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  docker-test:
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Checkout source code
+        uses: actions/checkout@v4
+
+      - name: Build Docker image
+        run: docker build -t cicd-web:test .
+
+      - name: Run Docker container
+        run: |
+          docker run -d \
+            --name cicd-web-test \
+            -p 8080:80 \
+            cicd-web:test
+
+      - name: Test website
+        run: |
+          sleep 5
+          curl -f http://localhost:8080
+
+      - name: Stop container
+        if: always()
+        run: docker rm -f cicd-web-test
