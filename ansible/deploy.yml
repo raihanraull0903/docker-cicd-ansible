@@ -1,4 +1,5 @@
-- name: Deploy Docker Application
+---
+- name: Deploy Docker Compose Application
   hosts: docker
   become: true
 
@@ -11,26 +12,8 @@
         owner: ubuntu
         group: ubuntu
 
-    - name: Build Docker image
-      community.docker.docker_image:
-        name: cicd-web
-        tag: latest
-        source: build
-        force_source: true
-        build:
-          path: /opt/cicd-web/
+    - name: Build and start application with Docker Compose
+      community.docker.docker_compose_v2:
+        project_src: /opt/cicd-web
+        build: always
         state: present
-
-    - name: Stop old container
-      community.docker.docker_container:
-        name: cicd-web
-        state: absent
-
-    - name: Start new container
-      community.docker.docker_container:
-        name: cicd-web
-        image: cicd-web:latest
-        state: started
-        restart_policy: unless-stopped
-        published_ports:
-          - "8080:80"
